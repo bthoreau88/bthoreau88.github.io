@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Source+Serif+4:wght@400;600&family=Inter:wght@500;600&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<title>Introducing Interview Orbit · Brandon Kelly</title>
+<meta name="description" content="Entry 001: who I am, why I'm building Interview Orbit, and how this development journal will work.">
+<link rel="stylesheet" href="../assets/journal.css"></head><body>
+<header class="masthead"><div class="wrap">
+<a class="brand" href="../index.html">Brandon Kelly <span>/</span> Development Journal</a>
+<nav aria-label="Primary"><ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../entries.html">Entries</a></li>
+<li><a href="../about.html">About</a></li>
+</ul></nav></div></header>
+<main id="main"><div class="wrap">
+<article>
+<p class="kicker">Entry 001 · Introduction</p>
+<h1>Introducing Interview Orbit: building an honest interview-practice workflow</h1>
+<p class="byline">By <strong>Brandon Kelly</strong> · <time datetime="2026-11-01">November 1, 2026</time> · Development journal</p>
+<p>My name is Brandon Kelly, and I am a Computer Science student at Full Sail University concentrating on artificial intelligence. Before entering software development, I built much of my creative practice around audio engineering, music, and filmmaking. Those disciplines taught me to listen closely, iterate carefully, and understand how technical decisions shape someone's experience.</p>
+<p>That background is part of what led me to Interview Orbit, a project focused on a familiar challenge: knowing what to say in a job interview is different from actually saying it out loud. An applicant can prepare a thoughtful answer on paper, then rush, hesitate, or lose the structure when speaking. I wanted to explore a tool that makes rehearsal more approachable and gives people specific feedback they can use on the next attempt.</p>
+<p>Interview Orbit is currently an early alpha prototype built around a simple practice loop: choose an interview question, record an answer, review clearly labeled feedback, and revisit the session from History. The prototype uses React and TypeScript, the browser's microphone APIs, and IndexedDB for local session information. It deliberately does not claim to transcribe audio automatically or to deliver an AI evaluation that has not been implemented. That distinction matters to me: an application should be clear about what it measured, what it inferred, and what it cannot yet do.</p>
+<figure>
+<img src="../assets/interview-orbit-dashboard.png" width="1280" height="800" alt="Interview Orbit dashboard: a 'Your next interview starts here' heading, a Start practice button, a count of eight curated prompts, and a Recent sessions panel.">
+<figcaption>The Interview Orbit dashboard in the current alpha prototype. Saved sessions stay in the browser on this device.</figcaption>
+</figure>
+<p>My goal for this course is to become more disciplined about designing systems that remain understandable as they grow. I want to improve how I separate domain logic from the user interface, test failure conditions rather than only the happy path, make accessible design decisions, and document the trade-offs behind each technical choice. I also want to understand how an AI-powered coaching feature could be introduced responsibly—with appropriate safeguards, observable inputs and outputs, and a way to check whether its feedback is actually useful.</p>
+<p>In future development entries, I plan to focus on a concrete problem, the options I considered, the solution I implemented, and the tests or evidence that support it. I will start with a particularly important issue in this project: what should happen if someone requests microphone permission and leaves the recording screen before answering the browser prompt? Solving problems like that is how I want to turn a promising prototype into dependable software.</p>
+<p>My aim is not just to finish an assignment. It is to leave this course with a stronger engineering process, a product I can explain and improve, and a development record that reflects both successes and limitations.</p>
+</article>
+<p><a href="../entries.html">← All entries</a></p>
+</div></main>
+<footer><div class="wrap">Brandon Kelly · Full Sail University, Computer Science (AI concentration) · Project: <a href="https://github.com/bthoreau88/interview-orbit">Interview Orbit on GitHub</a></div></footer>
+</body>
+</html>
