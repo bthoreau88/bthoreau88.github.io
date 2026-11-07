@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Source+Serif+4:wght@400;600&family=Inter:wght@500;600&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<title>"It uses AI" is not a feature: designing Interview Orbit's coaching before writing it · Brandon Kelly</title>
+<meta name="description" content="Entry 002: writing the first Software Design Document and style tile for Interview Orbit, and pinning down exactly what the AI part is allowed to do.">
+<link rel="stylesheet" href="../assets/journal.css"></head><body>
+<header class="masthead"><div class="wrap">
+<a class="brand" href="../index.html">Brandon Kelly <span>/</span> Development Journal</a>
+<nav aria-label="Primary"><ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../entries.html">Entries</a></li>
+<li><a href="../about.html">About</a></li>
+</ul></nav></div></header>
+<main id="main"><div class="wrap">
+<article>
+<p class="kicker">Entry 002 · Design</p>
+<h1>"It uses AI" is not a feature: designing Interview Orbit's coaching before writing it</h1>
+<p class="byline">By <strong>Brandon Kelly</strong> · <time datetime="2026-11-07">November 7, 2026</time> · Development journal</p>
+
+<p>In my last entry I said I'd write about the microphone-permission bug next. That story is coming, but this week the real work wasn't code. It was the first draft of Interview Orbit's Software Design Document and its style tile, and one problem in particular took most of my thinking: what exactly do I mean when I say the app will "use AI"?</p>
+
+<h2>The problem</h2>
+<p>My capstone pitch promised AI coaching on top of the practice loop that already works. When I sat down to write requirements, I realized that phrase didn't tell anyone anything. Is the AI transcribing? Scoring? Rewriting the answer? Training on people's recordings? In our class meeting this week, our instructor made the same point from a project manager's side: one casual word in a design doc can hide months of work, and "AI" is the classic example. If the doc doesn't define it, nobody can estimate it, test it, or schedule it.</p>
+<p>There was a second, more personal problem. The whole idea of Interview Orbit is that the feedback is honest. Every number on the results screen shows the rule that produced it. A model that hands back an unexplained score would quietly break that promise.</p>
+
+<h2>The solution: give the AI a contract</h2>
+<p>Instead of one vague line, the design doc now treats the AI like any other component, with defined inputs, outputs, and failure behavior:</p>
+<ul>
+<li><strong>Pre-existing models only.</strong> I'm not training anything, so I don't need a dataset of thousands of labeled interviews. That was a scope decision as much as a technical one.</li>
+<li><strong>Live transcription:</strong> audio in, transcript text and word timings out. The user can edit the transcript before it's analyzed, and the server deletes the audio right after.</li>
+<li><strong>Coaching:</strong> the question, the transcript, and the existing metrics go in. What comes out has to match a fixed JSON shape: strengths, improvements, which parts of a STAR answer were covered, and one follow-up question. Anything that doesn't match gets thrown away, and the user still sees their normal results.</li>
+<li><strong>What the AI never touches:</strong> word count, filler rate, and pace. Those stay deterministic and testable, exactly like they are today.</li>
+</ul>
+<p>Writing it this way also split the work into honest tiers. The MVP finishes and deploys what already works. Alpha adds accounts and a real database. AI lands in Beta, after the parts it depends on are solid. That ordering came straight out of trying to define the feature.</p>
+
+<figure>
+<img src="../assets/interview-orbit-style-tile.png" width="1600" height="1900" alt="Interview Orbit style tile: the ORBIT wordmark, brand colors midnight, cobalt, iris and ice with hex values, feedback colors for success, warning and danger, Space Grotesk, Inter and IBM Plex Mono type samples, line icons, buttons, chips, transcript source badges, metric cards, notices, and textures.">
+<figcaption>The first style tile. The colors, type, and components come from the app's real design tokens, and the feedback colors were chosen to pass contrast checks that already run in the test suite.</figcaption>
+</figure>
+
+<h2>The style tile</h2>
+<p>The style tile came out of the same idea. I built it from the tokens the app already uses instead of inventing a new look. I also added a source badge for "Live transcription (planned)" next to the existing manual, demo, and none badges, so AI output has a visual label before it even exists.</p>
+
+<h2>What's next</h2>
+<p>Next week the design doc gets its final pass, with flow diagrams for the account and AI use cases, plus a first wireframe for the new screens. I still owe you the microphone-permission story, and it's a good one about a recording that kept running after the user had already left the screen.</p>
+
+<h2>Sources</h2>
+<ul>
+<li>Warren, S. (n.d.). <a href="https://styletil.es/">Style Tiles: A visual web design process</a>.</li>
+<li>W3C. (2023). <a href="https://www.w3.org/TR/WCAG21/#contrast-minimum">Web Content Accessibility Guidelines 2.1, Success Criterion 1.4.3: Contrast (Minimum)</a>.</li>
+<li>Interview Orbit source and design documents: <a href="https://github.com/bthoreau88/interview-orbit">github.com/bthoreau88/interview-orbit</a>.</li>
+</ul>
+</article>
+<p><a href="../entries.html">← All entries</a></p>
+</div></main>
+<footer><div class="wrap">Brandon Kelly · Full Sail University, Computer Science (AI concentration) · Project: <a href="https://github.com/bthoreau88/interview-orbit">Interview Orbit on GitHub</a></div></footer>
+</body>
+</html>
