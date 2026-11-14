@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Source+Serif+4:wght@400;600&family=Inter:wght@500;600&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<title>The microphone that stayed on: a race condition in Interview Orbit's recorder · Brandon Kelly</title>
+<meta name="description" content="Entry 003: how leaving the recorder screen during the browser's permission prompt could start a hidden recording, how it was fixed, and how this week's sprint was planned.">
+<link rel="stylesheet" href="../assets/journal.css"></head><body>
+<header class="masthead"><div class="wrap">
+<a class="brand" href="../index.html">Brandon Kelly <span>/</span> Development Journal</a>
+<nav aria-label="Primary"><ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../entries.html">Entries</a></li>
+<li><a href="../about.html">About</a></li>
+</ul></nav></div></header>
+<main id="main"><div class="wrap">
+<article>
+<p class="kicker">Entry 003 · Bug fix</p>
+<h1>The microphone that stayed on: a race condition in Interview Orbit's recorder</h1>
+<p class="byline">By <strong>Brandon Kelly</strong> · <time datetime="2026-11-14">November 14, 2026</time> · Development journal</p>
+
+<p>In my first entry I promised this story, so here it is. It's the bug I'm most glad we caught, because it's the kind a user would never report. They'd just stop trusting the app.</p>
+
+<h2>The problem</h2>
+<p>Interview Orbit records your answer with the browser's microphone. The first time you press <em>Start recording</em>, the browser shows its own permission prompt: Allow or Block. That prompt doesn't block the page. You can keep clicking around while it sits there.</p>
+<p>So we tried the awkward path on purpose: press Start, then, while the prompt is still open, navigate away to another screen, and only then click <em>Allow</em>. The result: a recording started in the background on a screen that was no longer visible. Our test captured it directly: one recorder started and one live microphone track, even though the user had already left the recorder.</p>
+<p>For an app whose whole pitch is privacy (audio is never stored or uploaded), a microphone that turns on when you're not looking is about the worst bug possible.</p>
+
+<h2>Why it happened</h2>
+<p>Asking for the microphone is asynchronous. The code calls <code>getUserMedia</code> and waits. The recorder logic assumed that when the answer came back, the user was still on the same screen and still wanted to record. Nothing checked whether that request still mattered by the time it finished. That's a classic race condition: the result arrives after the situation that asked for it is gone.</p>
+
+<h2>The solution: give every attempt a ticket number</h2>
+<p>The fix is a small "generation" counter. Every time recording starts, the counter goes up and that attempt remembers its number. Cancelling, resetting, or leaving the screen also bumps the counter. When the permission answer finally comes back, the code compares its number to the current one. If they don't match, or the screen is gone, the attempt has been abandoned: the microphone stream is shut off immediately and no recorder is ever created.</p>
+<p>The important part was proving it. Three new end-to-end tests reproduce the exact sequence (start, leave, then grant permission) at desktop and phone sizes. Run against the old code, the race tests fail with a live microphone. Run against the fix, they pass, and the full suite stayed green (62 unit tests, all browser tests). One honest gap remains: those tests use a simulated microphone, so testing on real hardware on Windows and Android is now its own task in my backlog.</p>
+
+<figure>
+<img src="../assets/interview-orbit-sprint-1.png" width="936" height="1431" alt="Jira backlog for Interview Orbit showing BTHOR Sprint 1, November 13 to 27, with six work items totalling 29 story points, all assigned to Brandon Kelly, and the remaining backlog of 46 items below.">
+<figcaption>Sprint 1 in Jira: six tasks, 29 story points, each with written completion criteria. The real-microphone test is waiting in the backlog.</figcaption>
+</figure>
+
+<h2>The rest of the week: planning the work</h2>
+<p>This week was also about turning my design document into a plan. I broke the capstone into 52 tasks, each between three hours and a day, each with a "done when" line so nobody (including me) can call something finished without proof. Sprint 1 focuses on the foundation the design review asked for: choosing a speech-to-text service that keeps filler words, standing up the API, CI, the transcription endpoint, the transcript review screen, and a first set of labeled practice answers to test against.</p>
+<p>The lesson I'm carrying from the microphone bug into that plan is simple: write the test for the uncomfortable path first. The happy path almost never surprises you.</p>
+
+<h2>Sources</h2>
+<ul>
+<li>MDN Web Docs. (n.d.). <a href="https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia">MediaDevices: getUserMedia() method</a>.</li>
+<li>Interview Orbit source and evidence ledger: <a href="https://github.com/bthoreau88/interview-orbit">github.com/bthoreau88/interview-orbit</a>.</li>
+</ul>
+</article>
+<p><a href="../entries.html">← All entries</a></p>
+</div></main>
+<footer><div class="wrap">Brandon Kelly · Full Sail University, Computer Science (AI concentration) · Project: <a href="https://github.com/bthoreau88/interview-orbit">Interview Orbit on GitHub</a></div></footer>
+</body>
+</html>
