@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Source+Serif+4:wght@400;600&family=Inter:wght@500;600&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<title>Keeping the "um": Sprint 1 of Interview Orbit · Brandon Kelly</title>
+<meta name="description" content="Entry 004: why a typed transcript can't measure filler words, how Sprint 1 built a live transcript that keeps them, and what broke along the way.">
+<link rel="stylesheet" href="../assets/journal.css"></head><body>
+<header class="masthead"><div class="wrap">
+<a class="brand" href="../index.html">Brandon Kelly <span>/</span> Development Journal</a>
+<nav aria-label="Primary"><ul>
+<li><a href="../index.html">Home</a></li>
+<li><a href="../entries.html">Entries</a></li>
+<li><a href="../about.html">About</a></li>
+</ul></nav></div></header>
+<main id="main"><div class="wrap">
+<article>
+<p class="kicker">Entry 004 · Sprint 1</p>
+<h1>Keeping the "um": Sprint 1 of Interview Orbit</h1>
+<p class="byline">By <strong>Brandon Kelly</strong> · <time datetime="2026-11-25">November 25, 2026</time> · Development journal</p>
+
+<p>Sprint 1 is built and merged. Five of its six tasks are done and on the development branch, and the sixth is the one I care about most, so I'll be honest about where it stands at the end.</p>
+
+<h2>The problem: you can't count what was never written down</h2>
+<p>Interview Orbit gives feedback on how you answer, and one of the clearest signals is filler words: how often you say "um" and "uh." In my design review, my instructor pointed out the flaw in my first version. If the user types what they said, the fillers disappear. Nobody types "um." So a typed transcript can't measure the one thing I most wanted to measure.</p>
+<p>The fix sounds simple: transcribe the recording automatically. The catch is that many speech-to-text services clean fillers out by default, because most people want tidy text. Deepgram, for example, only keeps them when you turn on a specific setting. For this app, tidy text is the wrong answer.</p>
+
+<h2>The solution: a live transcript that keeps the fillers</h2>
+<p>Sprint 1 built the pipeline end to end:</p>
+<ul>
+<li><strong>An ASP.NET Core 9 API</strong> with a health check and eight passing tests.</li>
+<li><strong>Continuous integration on every pull request.</strong> To prove it actually guards the branch, I opened a pull request with a test that fails on purpose. The check went red and GitHub blocked the merge. I closed it, and development now requires both checks to pass.</li>
+<li><strong>A transcription endpoint</strong> that sends the recording to Deepgram with filler words turned on, rejects uploads over 180 seconds or 10 MB, and never writes audio to disk. The recording lives in memory for the length of the request and then it's gone.</li>
+<li><strong>A transcript review screen</strong> that marks the result as a live transcript, highlights every filler, and lets you fix anything the service misheard. Whatever you edit is exactly what gets analyzed.</li>
+<li><strong>A golden answer set:</strong> 20 labeled practice answers, including two my instructor asked for: a polished answer that's off-topic, and an on-topic answer full of fillers. The app has to handle both correctly. All 87 unit tests pass.</li>
+</ul>
+
+<figure>
+<img src="../assets/interview-orbit-live-transcript.png" width="1280" height="720" alt="Interview Orbit transcript review screen showing a Live transcription source badge, a transcript of a practice answer with the words um and uh highlighted, and an editable Correct the transcript box below it.">
+<figcaption>A real answer of mine, transcribed live. Every "um" and "uh" is highlighted, and it caught me repeating "this this," which I can fix in the box below.</figcaption>
+</figure>
+
+<figure>
+<img src="../assets/interview-orbit-feedback.png" width="1280" height="720" alt="Interview Orbit feedback panel showing 44 words, 4 filler words (um 3, uh 1), 9.1 fillers per 100 words, and an estimated pace of 126 words per minute, with two suggestions and the rule behind each one.">
+<figcaption>The feedback is computed from the edited transcript: 44 words, 4 fillers, 9.1 per 100 words. Each suggestion shows the rule that triggered it.</figcaption>
+</figure>
+
+<h2>What broke along the way</h2>
+<p>Three things I didn't expect. An end-to-end test was flaky because the recording timer can skip a second when the computer is busy, so I changed it to wait for <em>at least</em> that many seconds instead of an exact number. My first "no audio on disk" test passed even before the fix existed, which meant it wasn't testing anything, so I rewrote it to check the disk while the request is still running. And the .NET 10 SDK on my machine created a new solution file format, so I pinned the project to the .NET 9 SDK.</p>
+<p>The second one taught me the most. A test that can't fail isn't protecting you. Now I make each new test fail at least once before I trust it.</p>
+
+<h2>What's still open</h2>
+<p>The sixth task is the comparison itself: is Deepgram the right service, or is AssemblyAI better at catching fillers? I recorded five practice answers, and both services are connected and working. The decision has to come from my own hand count of every "um" and "uh" in those recordings, not from either service grading itself. That count and the decision record are what I'm finishing now, and they'll be the next entry.</p>
+<p>Sprint 2 starts this week: a Technical question category, rubrics per category, a warning when a transcript was typed by hand, and clearer labels for which numbers are measured and which are guidelines.</p>
+
+<h2>Sources</h2>
+<ul>
+<li>Deepgram. (n.d.). <a href="https://developers.deepgram.com/docs/filler-words">Filler Words</a>. Deepgram Documentation.</li>
+<li>MDN Web Docs. (n.d.). <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/413">413 Content Too Large</a>.</li>
+<li>Interview Orbit source, development branch: <a href="https://github.com/bthoreau88/interview-orbit/tree/development">github.com/bthoreau88/interview-orbit</a>.</li>
+</ul>
+</article>
+<p><a href="../entries.html">← All entries</a></p>
+</div></main>
+<footer><div class="wrap">Brandon Kelly · Full Sail University, Computer Science (AI concentration) · Project: <a href="https://github.com/bthoreau88/interview-orbit">Interview Orbit on GitHub</a></div></footer>
+</body>
+</html>
